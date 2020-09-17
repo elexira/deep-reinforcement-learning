@@ -2,6 +2,8 @@
 
 ### Getting Started
 
+use !pip install gym==0.9.6 for 'Taxi-v2' because it has been deprecated 
+
 Read the description of the environment in subsection 3.1 of [this paper](https://arxiv.org/pdf/cs/9905014.pdf).  You can verify that the description in the paper matches the OpenAI Gym environment by peeking at the code [here](https://github.com/openai/gym/blob/master/gym/envs/toy_text/taxi.py).
 
 
