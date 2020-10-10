@@ -9,14 +9,14 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 64         # minibatch size
+BATCH_SIZE = 64*1        # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
 LR = 5e-4               # learning rate 
 UPDATE_EVERY = 4        # how often to update the network
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
+print("found this devide" , device)
 class Agent():
     """Interacts with and learns from the environment."""
 
@@ -37,7 +37,7 @@ class Agent():
         self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
         self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
-
+        self.loss = torch.nn.MSELoss()
         # Replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
         # Initialize time step (for updating every UPDATE_EVERY steps)
@@ -45,6 +45,7 @@ class Agent():
     
     def step(self, state, action, reward, next_state, done):
         # Save experience in replay memory
+        # it seems every element of memory is only one single state, action, reward ... not a series of them.
         self.memory.add(state, action, reward, next_state, done)
         
         # Learn every UPDATE_EVERY time steps.
@@ -53,6 +54,7 @@ class Agent():
             # If enough samples are available in memory, get random subset and learn
             if len(self.memory) > BATCH_SIZE:
                 experiences = self.memory.sample()
+#                 print(experiences)
                 self.learn(experiences, GAMMA)
 
     def act(self, state, eps=0.):
@@ -84,10 +86,26 @@ class Agent():
             gamma (float): discount factor
         """
         states, actions, rewards, next_states, dones = experiences
-
+#         print("states", states.shape)
+#         print("actions", actions)
+#         print("rewards", rewards.shape)
+#         print("next_states", next_states.shape)
         ## TODO: compute and minimize the loss
         "*** YOUR CODE HERE ***"
-
+        # the most confusing thing here is that we are training the local model, but our objective is the target model ?
+        # the target model parameters only get updated once in a while. 
+        best_action_q_value_target, _ = torch.max(self.qnetwork_target(next_states),1)
+        best_action_q_value_target = best_action_q_value_target.view(-1,1)
+        action_q_values_local = self.qnetwork_local(states).gather(1, actions.view(-1,1))
+#         action_q_values_target = self.qnetwork_target(states)[actions,]
+#         print("action_q_values_local", best_action_q_value_local.shape)
+#         print("action_q_values_target", action_q_values_target.shape)
+#         error = action_q_values_target - (rewards + gamma*best_action_q_value_local)
+        loss = self.loss(action_q_values_local, rewards + gamma*best_action_q_value_target* (1 - dones))
+#         loss = torch.sum(error**2)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
         # ------------------- update target network ------------------- #
         self.soft_update(self.qnetwork_local, self.qnetwork_target, TAU)                     
 
@@ -127,12 +145,13 @@ class ReplayBuffer:
     def add(self, state, action, reward, next_state, done):
         """Add a new experience to memory."""
         e = self.experience(state, action, reward, next_state, done)
+        # append add the element to the right end of the queue
         self.memory.append(e)
     
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
         experiences = random.sample(self.memory, k=self.batch_size)
-
+        # vstack puts elements on top of each other 
         states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(device)
         actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).long().to(device)
         rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().to(device)
