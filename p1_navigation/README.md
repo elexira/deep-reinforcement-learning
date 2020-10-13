@@ -35,9 +35,16 @@ The task is episodic, and in order to solve the environment, your agent must get
 2. Place the file in the DRLND GitHub repository, in the `p1_navigation/` folder, and unzip (or decompress) the file. 
 
 ### Instructions
+follow the instructions below to setup the environment on your own computer
+```buildoutcfg
+    conda create python=3.6 -n unity
+    conda activate unity
+    conda install numpy
+    pip install unityagents
+    pip install mlagents
+```
 
 Follow the instructions in `Navigation.ipynb` to get started with training your own agent!  
-
 ### (Optional) Challenge: Learning from Pixels
 
 After you have successfully completed the project, if you're looking for an additional challenge, you have come to the right place!  In the project, your agent learned from information such as its velocity, along with ray-based perception of objects around its forward direction.  A more challenging task would be to learn directly from pixels!
