@@ -2,7 +2,7 @@ import numpy as np
 import random
 from collections import namedtuple, deque
 
-from model import QNetwork
+from model_pixel import QNetwork
 
 import torch
 import torch.nn.functional as F
@@ -11,7 +11,7 @@ import torch.optim as optim
 BUFFER_SIZE = int(1e5)  # replay buffer size
 BATCH_SIZE = 64*1        # minibatch size
 GAMMA = 0.99            # discount factor
-TAU = 1e-3              # for soft update of target parameters
+TAU = 1e-2              # for soft update of target parameters
 LR = 5e-4               # learning rate 
 UPDATE_EVERY = 4        # how often to update the network
 
@@ -35,15 +35,9 @@ class Agent():
 
         # Q-Network
         self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
-        
-        
         self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
-        
-        weights = torch.load('checkpoint_double.pth')
-        self.qnetwork_local.load_state_dict(weights)
-        self.qnetwork_target.load_state_dict(weights)
-        print("pretrained models loaded")
-        
+
+
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
         self.loss = torch.nn.MSELoss()
         # Replay memory
@@ -54,15 +48,13 @@ class Agent():
     def step(self, state, action, reward, next_state, done):
         # Save experience in replay memory
         # it seems every element of memory is only one single state, action, reward ... not a series of them.
-        self.memory.add(state, action, reward, next_state, done)
-        
+        self.memory.add(state, action, reward, next_state, done)       
         # Learn every UPDATE_EVERY time steps.
         self.t_step = (self.t_step + 1) % UPDATE_EVERY
         if self.t_step == 0:
             # If enough samples are available in memory, get random subset and learn
             if len(self.memory) > BATCH_SIZE:
                 experiences = self.memory.sample()
-#                 print(experiences)
                 self.learn(experiences, GAMMA)
 
     def act(self, state, eps=0.):
@@ -78,7 +70,6 @@ class Agent():
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
         self.qnetwork_local.train()
-
         # Epsilon-greedy action selection
         if random.random() > eps:
             return np.argmax(action_values.cpu().data.numpy())
@@ -94,15 +85,10 @@ class Agent():
             gamma (float): discount factor
         """
         states, actions, rewards, next_states, dones = experiences
-#         print("states", states.shape)
-#         print("actions", actions)
-#         print("rewards", rewards.shape)
-#         print("next_states", next_states.shape)
-        ## TODO: compute and minimize the loss
+        states = states.reshape(-1, 1, 84, 84)
+        next_states = next_states.reshape(-1, 1, 84, 84)
+#         print("in learn tensor shapes", states.shape, next_states.shape)
         "*** YOUR CODE HERE ***"
-        # the most confusing thing here is that we are training the local model, but our objective is the target model ?
-        # the target model parameters only get updated once in a while.
-
         with torch.no_grad():     
             # selecting the best action from the local model for states t + 1 
             best_action_value,  best_action_index = torch.max(self.qnetwork_local(next_states),1)   
@@ -127,6 +113,7 @@ class Agent():
             target_model (PyTorch model): weights will be copied to
             tau (float): interpolation parameter 
         """
+#         print("in soft update")
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
 
