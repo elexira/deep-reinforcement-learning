@@ -87,7 +87,6 @@ class Agent():
         states, actions, rewards, next_states, dones = experiences
         states = states.reshape(-1, 1, 84, 84)
         next_states = next_states.reshape(-1, 1, 84, 84)
-#         print("in learn tensor shapes", states.shape, next_states.shape)
         "*** YOUR CODE HERE ***"
         with torch.no_grad():     
             # selecting the best action from the local model for states t + 1 

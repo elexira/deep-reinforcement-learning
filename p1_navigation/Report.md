@@ -58,10 +58,6 @@ the performance results can be seen below, which achieves score of 13 in about 4
 I implemented the double DQN based on the lecture video.
 This improvement was the simplest among the 3 proposed improvements.
 ![alt text](./images/double_dqn.png "Title")
-note to myself: to implement the importance sampling improvement,
-you can add the penalty to the penalty as another parameter along with 
-states, actions, rewards, next_states, dones, penalty = experiences
-then you can just adjust the update according the penality. 
 #### implementation  
 * step 1: use the following scripts to execute the results
 ```buildoutcfg
@@ -93,6 +89,23 @@ the files used for this implementation as as follows
     dqn_agent_double_pixel.py
     model_pixel.py
 ```
-**The model does not converge and the average reward remains around 0. 
+**The model does not converge even after increasing the CNN depth and the average reward remains around 0. 
 which i believe indicates random action. 
 i would appreciate any hint to make this model converge**
+### Next Steps and Improvements
+#### Prioritized Experience Replay
+To do this I can add the penalty as another parameter along with 
+states, actions, rewards, next_states, dones, penalty = experiences
+then you can just adjust the update according the penalty. 
+#### Dueling Network 
+I did not have time to review the recommended paper, but this is the second
+improvement i will attempt. This is specially doable because i implemented
+the pixel based DQN improvement.
+#### multi-model robust decision making
+I noticed even when my average reward per episode was around 16, in some scenarios the 
+banana collector will get stuck in an infinite loop in the environment. I think this is a very
+dangerous situation which we cannot detect unless we have run the agent across
+many rounds of simulation. A more robust solution is to train several DQNs
+independently and use the majority vote when reaching a state to decide the 
+next action and hopefully this ensemble of DQNs provide more rebust policy compare to a single
+model. Such models can be trained with different random seeds. 
