@@ -1,0 +1,5 @@
+name: pong-env
+dependencies:
+  - python==3.6.3
+  - pip
+

@@ -1,0 +1,19 @@
+[I 22:18:52.923 NotebookApp] JupyterLab extension loaded from /home/pemfir/anaconda3/envs/pong-env/lib/python3.6/site-packages/jupyterlab
+[I 22:18:52.923 NotebookApp] JupyterLab application directory is /home/pemfir/anaconda3/envs/pong-env/share/jupyter/lab
+[I 22:18:52.924 NotebookApp] Serving notebooks from local directory: /media/pemfir/Data/classes/computer_vision_book/deep-reinforcement-learning
+[I 22:18:52.924 NotebookApp] The Jupyter Notebook is running at:
+[I 22:18:52.924 NotebookApp] http://localhost:8888/?token=d1f7ba34d8626b494b709be117b2647b48ca651caec27165
+[I 22:18:52.924 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 22:18:52.925 NotebookApp] 
+    
+    Copy/paste this URL into your browser when you connect for the first time,
+    to login with a token:
+        http://localhost:8888/?token=d1f7ba34d8626b494b709be117b2647b48ca651caec27165
+[I 22:18:53.026 NotebookApp] Accepting one-time-token-authenticated connection from 127.0.0.1
+[I 22:19:56.989 NotebookApp] Kernel started: ce2f7f19-4e4f-4295-9762-ed73af0761bf
+[I 22:19:57.316 NotebookApp] Adapting to protocol v5.1 for kernel ce2f7f19-4e4f-4295-9762-ed73af0761bf
+[I 22:20:00.155 NotebookApp] Starting buffering for ce2f7f19-4e4f-4295-9762-ed73af0761bf:a2ba25d0692d4f4aa9d1f7f466be94fd
+[I 22:20:00.370 NotebookApp] Kernel restarted: ce2f7f19-4e4f-4295-9762-ed73af0761bf
+[I 22:20:00.780 NotebookApp] Adapting to protocol v5.1 for kernel ce2f7f19-4e4f-4295-9762-ed73af0761bf
+[I 22:20:00.781 NotebookApp] Restoring connection for ce2f7f19-4e4f-4295-9762-ed73af0761bf:a2ba25d0692d4f4aa9d1f7f466be94fd
+[I 22:20:00.781 NotebookApp] Replaying 6 buffered messages
