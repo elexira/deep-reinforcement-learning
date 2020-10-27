@@ -13,6 +13,7 @@ RIGHT=4
 LEFT=5
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("i found this devide:", device)
  
 # preprocess a single frame
 # crop image and downsample to 80x80
@@ -106,6 +107,8 @@ def collect_trajectories(envs, policy, tmax=200, nrand=5):
     envs.step([1]*n)
     
     # perform nrand random steps
+    # advance the game (0=no action)
+    # we take one action and skip game forward
     for _ in range(nrand):
         fr1, re1, _, _ = envs.step(np.random.choice([RIGHT, LEFT],n))
         fr2, re2, _, _ = envs.step([0]*n)
@@ -123,7 +126,9 @@ def collect_trajectories(envs, policy, tmax=200, nrand=5):
         # so we move it to the cpu
         probs = policy(batch_input).squeeze().cpu().detach().numpy()
         
+        # take action with probability = probs
         action = np.where(np.random.rand(n) < probs, RIGHT, LEFT)
+        # based on the action you took, record the probability of that action pi(action+taken|state)
         probs = np.where(action==RIGHT, probs, 1.0-probs)
         
         
