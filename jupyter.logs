@@ -1,51 +1,43 @@
-[I 22:01:19.229 NotebookApp] Writing notebook server cookie secret to /run/user/1000/jupyter/notebook_cookie_secret
-[I 22:01:19.428 NotebookApp] JupyterLab extension loaded from /home/pemfir/anaconda3/envs/pong-env/lib/python3.6/site-packages/jupyterlab
-[I 22:01:19.428 NotebookApp] JupyterLab application directory is /home/pemfir/anaconda3/envs/pong-env/share/jupyter/lab
-[I 22:01:19.429 NotebookApp] Serving notebooks from local directory: /media/pemfir/Data/classes/computer_vision_book/deep-reinforcement-learning
-[I 22:01:19.429 NotebookApp] The Jupyter Notebook is running at:
-[I 22:01:19.429 NotebookApp] http://localhost:8888/?token=b07a91a646cdeea9c04cc490409f639d9f88200aa3a87bb2
-[I 22:01:19.429 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
-[C 22:01:19.430 NotebookApp] 
+[I 19:06:20.896 NotebookApp] JupyterLab extension loaded from /home/pemfir/anaconda3/envs/pong-env/lib/python3.6/site-packages/jupyterlab
+[I 19:06:20.896 NotebookApp] JupyterLab application directory is /home/pemfir/anaconda3/envs/pong-env/share/jupyter/lab
+[I 19:06:20.898 NotebookApp] Serving notebooks from local directory: /media/pemfir/Data/classes/computer_vision_book/deep-reinforcement-learning
+[I 19:06:20.898 NotebookApp] The Jupyter Notebook is running at:
+[I 19:06:20.898 NotebookApp] http://localhost:8888/?token=28051feb519e77ad5b81b6ee2f25f10dce662b94ede06a82
+[I 19:06:20.898 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 19:06:20.898 NotebookApp] 
     
     Copy/paste this URL into your browser when you connect for the first time,
     to login with a token:
-        http://localhost:8888/?token=b07a91a646cdeea9c04cc490409f639d9f88200aa3a87bb2
-[I 22:01:19.557 NotebookApp] Accepting one-time-token-authenticated connection from 127.0.0.1
-[I 22:01:35.513 NotebookApp] Kernel started: aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:01:35.846 NotebookApp] Adapting to protocol v5.1 for kernel aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:01:38.417 NotebookApp] Starting buffering for aa24ab01-fc62-4e3d-97a8-180a747b97b9:0226503acab146bb8109638677d03394
-[I 22:01:38.626 NotebookApp] Kernel restarted: aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:01:39.015 NotebookApp] Adapting to protocol v5.1 for kernel aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:01:39.015 NotebookApp] Restoring connection for aa24ab01-fc62-4e3d-97a8-180a747b97b9:0226503acab146bb8109638677d03394
-[I 22:01:39.015 NotebookApp] Replaying 3 buffered messages
-[I 22:03:21.697 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:03:35.516 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:05:35.593 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:07:35.894 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:09:35.927 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:11:36.779 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:13:37.370 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:13:48.640 NotebookApp] Kernel interrupted: aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:14:23.812 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:14:51.210 NotebookApp] Starting buffering for aa24ab01-fc62-4e3d-97a8-180a747b97b9:0226503acab146bb8109638677d03394
-[I 22:14:51.718 NotebookApp] Kernel restarted: aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:14:52.021 NotebookApp] Adapting to protocol v5.1 for kernel aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:14:52.021 NotebookApp] Restoring connection for aa24ab01-fc62-4e3d-97a8-180a747b97b9:0226503acab146bb8109638677d03394
-[I 22:14:52.021 NotebookApp] Replaying 6 buffered messages
-[I 22:15:24.394 NotebookApp] Kernel interrupted: aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:15:37.358 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:17:38.242 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:19:39.033 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:21:39.033 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:22:39.891 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:22:58.458 NotebookApp] Kernel interrupted: aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 22:23:39.039 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:25:39.032 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 22:27:39.036 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 23:13:39.081 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 23:14:16.561 NotebookApp] Kernel started: 66f88a13-951e-4609-926f-d025fa5352a6
-[I 23:14:16.962 NotebookApp] Adapting to protocol v5.1 for kernel 66f88a13-951e-4609-926f-d025fa5352a6
-[I 23:17:39.080 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 23:18:43.165 NotebookApp] Kernel interrupted: aa24ab01-fc62-4e3d-97a8-180a747b97b9
-[I 23:18:54.858 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
-[I 23:19:39.111 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+        http://localhost:8888/?token=28051feb519e77ad5b81b6ee2f25f10dce662b94ede06a82
+[I 19:06:21.011 NotebookApp] Accepting one-time-token-authenticated connection from 127.0.0.1
+[W 19:06:31.202 NotebookApp] 404 GET /api/kernels/0ab5733f-68e0-4ae7-b0b2-37f1f5f100a0/channels?session_id=537b4d34662d43e6b93bdc90726f6bc2 (127.0.0.1): Kernel does not exist: 0ab5733f-68e0-4ae7-b0b2-37f1f5f100a0
+[W 19:06:31.209 NotebookApp] 404 GET /api/kernels/0ab5733f-68e0-4ae7-b0b2-37f1f5f100a0/channels?session_id=537b4d34662d43e6b93bdc90726f6bc2 (127.0.0.1) 16.90ms referer=None
+[I 19:06:36.656 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:06:37.430 NotebookApp] Kernel started: 2be97406-ac3e-4ee7-b51f-d59286f26078
+[I 19:06:37.766 NotebookApp] Adapting to protocol v5.1 for kernel 2be97406-ac3e-4ee7-b51f-d59286f26078
+[I 19:06:41.431 NotebookApp] Starting buffering for 2be97406-ac3e-4ee7-b51f-d59286f26078:a2327c120ab8493a87444b6565b75025
+[I 19:06:41.647 NotebookApp] Kernel restarted: 2be97406-ac3e-4ee7-b51f-d59286f26078
+[I 19:06:42.057 NotebookApp] Adapting to protocol v5.1 for kernel 2be97406-ac3e-4ee7-b51f-d59286f26078
+[I 19:06:42.059 NotebookApp] Restoring connection for 2be97406-ac3e-4ee7-b51f-d59286f26078:a2327c120ab8493a87444b6565b75025
+[I 19:06:42.059 NotebookApp] Replaying 6 buffered messages
+[I 19:07:08.648 NotebookApp] Kernel interrupted: 2be97406-ac3e-4ee7-b51f-d59286f26078
+[I 19:08:37.574 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:10:38.180 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:12:38.442 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:14:38.581 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:16:38.778 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:18:39.040 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:20:39.549 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:22:40.294 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:24:40.291 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:38:40.408 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:40:40.628 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:42:40.749 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:44:41.661 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:46:41.727 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:48:42.345 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:50:42.514 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:52:42.641 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 19:54:42.682 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 20:04:42.665 NotebookApp] Saving file at /Pong_reinforce/pong-REINFORCE.ipynb
+[I 21:07:53.316 NotebookApp] Starting buffering for 2be97406-ac3e-4ee7-b51f-d59286f26078:a2327c120ab8493a87444b6565b75025
