@@ -25,6 +25,13 @@
 \maketitle
 \thispagestyle{fancy}
 
+
+\section{On-Off-Policy}
+
+Q-learning is an off-policy. Notice when you want to take action $a_{t}$ at time t+1, you chooise action based on $argmax\{Q\}$. This action whatever it may be, is not still realized. When you to the next time step t+1, you use the $\epsilon$ greedy approach to choose $A_{t+1}$. This time you take this action actually. So during updating you use action $a$ based on $argmax\{Q\}$, but during interaction with the simulated environment you choose your action based on $\epsilon$ greedy approach applied to $Q(S_{t+1}, A_{t+1})$. This discripancy between action chosen during update for time $t+1$ and during trajectory/simulation generation is called off-policy. SARSA does not exhibit this issue and is an on-line policy. Both methods attempt to find the optimal $Q^*$ and policy. 
+
+
+
 \section{The Problem}
 
 \begin{itemize}
@@ -371,7 +378,7 @@ The reasoning for the above is as follows:
 	\caption{Sarsa}
 \end{algorithm}
 
-%%%%%%%%%%%% 14 Q-Learning
+%%%%%%%%%%%% 14 Q-Learnin: 
 \begin{algorithm}
 	\KwIn{policy $\pi$, positive integer $num\_episodes$, small positive fraction $\alpha$, GLIE $\{\epsilon_i\}$}
     	\KwOut{value function $Q$ ($\approx q_\pi$ if $num\_episodes$ is large enough)}
@@ -390,6 +397,7 @@ The reasoning for the above is as follows:
 	\KwRet{$Q$}
 	\caption{Sarsamax (Q-Learning)}
 \end{algorithm}
+
 
 
 %%%%%%%%%%%% 15 Expected Sarsa

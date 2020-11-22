@@ -128,7 +128,7 @@ def collect_trajectories(envs, policy, tmax=200, nrand=5):
         
         # take action with probability = probs
         action = np.where(np.random.rand(n) < probs, RIGHT, LEFT)
-        # based on the action you took, record the probability of that action pi(action+taken|state)
+        # based on the action you took, record the probability of that action pi(action_taken|state)
         probs = np.where(action==RIGHT, probs, 1.0-probs)
         
         
@@ -155,7 +155,7 @@ def collect_trajectories(envs, policy, tmax=200, nrand=5):
     return prob_list, state_list, \
         action_list, reward_list
 
-# convert states to probability, passing through the policy
+# convert states to probability, passing through the policy network 
 def states_to_prob(policy, states):
     states = torch.stack(states)
     policy_input = states.view(-1,*states.shape[-3:])
@@ -187,9 +187,9 @@ def surrogate(policy, old_probs, states, actions, rewards,
     new_probs = torch.where(actions == RIGHT, new_probs, 1.0-new_probs)
 
     ratio = new_probs/old_probs
-
+    print("average batch ration:" , torch.mean(ratio).detach().cpu().numpy())
     # include a regularization term
-    # this steers new_policy towards 0.5
+    # this steers new_policy towards 0.5 ... Amir note: as opposed to a typical reguralization steering estimates to 0
     # add in 1.e-10 to avoid log(0) which gives nan
     entropy = -(new_probs*torch.log(old_probs+1.e-10)+ \
         (1.0-new_probs)*torch.log(1.0-old_probs+1.e-10))

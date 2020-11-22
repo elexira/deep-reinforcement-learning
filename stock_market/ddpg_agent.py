@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e5)  # replay buffer size
+BUFFER_SIZE = int(1e4)  # replay buffer size
 BATCH_SIZE = 128        # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
@@ -54,18 +54,6 @@ class Agent():
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
-        # notice throughout this whole training we keep on accumulating experience tuples 1E5
-        # is the limit of how many experiences we collect before stating to throw away the earlier ones
-        # notice that state, action, reward, next_state, done , for a deterministic simulator
-        # is not at all a function of policy or Q. policy, actor, critic may impact how frequently
-        # we perform an action but once the action is performed the next state and reward is deriven from the
-        # simulation. For example for a deterministic simulation if we are in state S , take action A, we will
-        # end up in state S' , and this is independent of the models we are training.
-        # so this means the experiences we are collecting better cover a large range of actions and states
-        # so we can learn from them. This is why we play freely and then we learn, and we use epsilon greedy to try
-        # random things so we get to collect reward and better estimate Q(S, A) for a wide combination of S, A
-        # after several iterations, actor starts to reduce the number of random actions and we start acting
-        # optimally according to actor function approximation. 
         self.memory.add(state, action, reward, next_state, done)
 
         # Learn, if enough samples are available in memory
@@ -82,7 +70,9 @@ class Agent():
         self.actor_local.train()
         if add_noise:
             action += self.noise.sample()
-        return np.clip(action, -1, 1)
+        action = (action + 1.0) / 2.0
+        return np.clip(action, 0, 1)
+
 
     def reset(self):
         self.noise.reset()
@@ -108,9 +98,6 @@ class Agent():
         # Compute Q targets for current states (y_i)
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
         # Compute critic loss
-        # actions at begining of experiences are random, but as you update the actor model
-        # you start acting more and more based on argmax Q(s, a) , which is what actor is trying
-        # estimate.
         Q_expected = self.critic_local(states, actions)
         critic_loss = F.mse_loss(Q_expected, Q_targets)
         # Minimize the loss
@@ -121,21 +108,6 @@ class Agent():
         # ---------------------------- update actor ---------------------------- #
         # Compute actor loss
         actions_pred = self.actor_local(states)
-        # we backpropagate the actor local model parameters only, excluding the critic model parameters
-        # in a way to maximixe the Q(s, a)
-        # because we want the actor to always spit out argmax Q(s, a)
-        # so we have this critical_local function that can calculate Q(s,a) and i want the train my actor
-        # to output a value to Q(S, a) that will maximize its value for that state S.
-        # while this propagation will impact all parameters of actor for a given state S,
-        # the impact on critic is when actor spits out
-        # an action which is fed into the Q that is in the direction of maximizing Q(s, action_from_actor)
-        # also notice state S and output of the critic model is not part of optimization
-        # when you do backproagate the actor in the optimization below, the output of the critic Q can
-        # written as a function of the last layer parameteres of actor something like Q = 10W , in which W is an actor
-        # parameter and 10W evaluated at current estimated value of W is the critic output, e.g.,w_hat = 2 then 10x2 = 20
-        # . Hopefully you can see from this example taking deravatives with respect to actor parameter W to maximize the Q = 10W
-        # is straightforward.
-        # we could maximize the sum of Q(s, a) over all experiences or mean of Q(s, a) over all experiences
         actor_loss = -self.critic_local(states, actions_pred).mean()
         # Minimize the loss
         self.actor_optimizer.zero_grad()
