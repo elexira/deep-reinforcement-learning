@@ -18,7 +18,7 @@ LR_CRITIC = 1e-3  # learning rate of the critic
 WEIGHT_DECAY = 0  # L2 weight decay
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
+NOISE_DECAY_MULTIPLIER = 0.9999
 
 class Agent():
     """Interacts with and learns from the environment."""
@@ -49,7 +49,7 @@ class Agent():
 
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
-
+        self.noise_decay = 1
         # Replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
 
@@ -68,6 +68,7 @@ class Agent():
 
     def act(self, state, add_noise=True, random_action=False):
         """Returns actions for given state as per current policy."""
+
         if random_action and len(self.memory) < 2*int(1e4):
             action = np.random.randn(self.number_of_agents, self.action_size)
         else:
@@ -77,8 +78,9 @@ class Agent():
                 action = self.actor_local(state).cpu().data.numpy()
             self.actor_local.train()
             if add_noise:
-                noise = np.array([self.noise.sample() for _ in range(self.number_of_agents)])
+                noise = np.array([self.noise_decay*self.noise.sample() for _ in range(self.number_of_agents)])
                 action += noise
+            self.noise_decay *= NOISE_DECAY_MULTIPLIER
         return np.clip(action, -1, 1)
 
     def reset(self):
