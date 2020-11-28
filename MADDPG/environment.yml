@@ -1,0 +1,8 @@
+# run: conda env create --file environment.yml --prefix=/media/Data/env/maddpg
+name: maddpg
+dependencies:
+  - python=3.6
+  - imageio
+  - pip
+  - pip:
+    - -r file:requirements.txt
