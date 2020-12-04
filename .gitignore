@@ -107,3 +107,4 @@ p2_continuous-control/Reacher_Linux_multi/
 p2_continuous-control/Crawler_Linux/
 p3_collab-compet/Soccer_Linux/
 p3_collab-compet/Tennis_Linux/
+*.pemfir-ubuntu
