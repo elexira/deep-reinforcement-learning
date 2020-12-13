@@ -1,7 +1,7 @@
 # main function that sets up environments
 # perform training loop
 
-import envs
+
 from buffer import ReplayBuffer
 from maddpg import MADDPG
 import torch
@@ -35,12 +35,14 @@ def pre_process(entity, batchsize):
 def main():
     seeding()
     # number of parallel agents
-    parallel_envs = 4
+    parallel_envs = 1
+    number_of_agents = 2
+    action_size = 2
     # number of training episodes.
     # change this to higher number to experiment. say 30000.
-    number_of_episodes = 10000
-    episode_length = 100
-    batchsize = 1000
+    number_of_episodes = 1
+    episode_length = 1
+    batchsize = 1
     # how many episodes to save policy and gif
     save_interval = 5000
     # what is this ?
@@ -70,7 +72,8 @@ def main():
     # this creates a list of models, each element in the list refers to an agent in the simulation
     # [agent_one_ddpg, agent_two_ddpg, ...]
     # agent_one_ddpg contains the agent actor and critic models,e.g., agent_one_ddpg.actor, agent_one_ddpg.critic
-    maddpg = MADDPG()
+    # passing number of agents
+    maddpg = MADDPG(number_of_agents, action_size)
     logger = SummaryWriter(log_dir=log_path)
     agent0_reward = []
     agent1_reward = []

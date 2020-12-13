@@ -105,6 +105,7 @@ def main():
         # each element contains an array of 14 values which is the global state of that environment
         obs, obs_full = transpose_list(all_obs)
 
+
         #for calculating rewards for this particular episode - addition of all time steps
 
         # save info or not
