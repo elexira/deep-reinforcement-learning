@@ -45,15 +45,9 @@ class DDPGAgent:
     def act(self, obs, noise=0.0):
         obs = obs.to(device)
         action = self.actor(obs) + noise*self.noise.noise()
-        # print("local actor state input tensor shape", obs.shape)
-        # print("local actor noise added", noise*self.noise.noise())
-        # print("action", action)
         return action
 
     def target_act(self, obs, noise=0.0):
         obs = obs.to(device)
-        # print("taregt actor state input tensor shape", obs.shape)
-        # print("noise added", noise*self.noise.noise())
         action = self.target_actor(obs) + noise*self.noise.noise()
-        # print("action", action)
         return action

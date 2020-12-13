@@ -1,52 +1,5 @@
-# main function that sets up environments
-# perform training loop
 
 
-from buffer import ReplayBuffer
-from maddpg import MADDPG
-import torch
-import numpy as np
-from tensorboardX import SummaryWriter
-import os
-from utilities import transpose_list, transpose_to_tensor
-
-# keep training awake
-# from workspace_utils import keep_awake
-
-# for saving gif
-import imageio
-
-def seeding(seed=1):
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-
-def pre_process(entity, batchsize):
-    processed_entity = []
-    for j in range(3):
-        list = []
-        for i in range(batchsize):
-            b = entity[i][j]
-            list.append(b)
-        c = torch.Tensor(list)
-        processed_entity.append(c)
-    return processed_entity
-
-
-def main():
-    seeding()
-    # number of parallel agents
-    parallel_envs = 1
-    number_of_agents = 2
-    action_size = 2
-    # number of training episodes.
-    # change this to higher number to experiment. say 30000.
-    number_of_episodes = 1
-    episode_length = 1
-    batchsize = 1
-    # how many episodes to save policy and gif
-    save_interval = 5000
-    # what is this ?
-    t = 0
     
     # amplitude of OU noise
     # this slowly decreases to 0
@@ -155,18 +108,6 @@ def main():
             next_obs, next_obs_full, rewards, dones, info = env.step(actions_for_env)
             
             # add data to buffer
-            transition = (obs, obs_full, actions_for_env, rewards, next_obs, next_obs_full, dones)
-            
-            buffer.push(transition)
-            
-            reward_this_episode += rewards
-
-            obs, obs_full = next_obs, next_obs_full
-            
-            # save gif frame
-            if save_info:
-                frames.append(env.render('rgb_array'))
-                tmax += 1
         
         # update once after every episode_per_update
         if len(buffer) > batchsize and episode % episode_per_update < parallel_envs:
@@ -178,44 +119,90 @@ def main():
                 # each agent element contains their corresponding value, for example in case of obs it would be a
                 # vector with 14 values
                 # so when i ask for 2 samples for examples, i get 2 samples each containing all 3 agents states, rewards
-                samples = buffer.sample(batchsize)
-                maddpg.update(samples, a_i, logger)
-            maddpg.update_targets() #soft update the target network towards the actual networks
 
-        for i in range(parallel_envs):
-            agent0_reward.append(reward_this_episode[i, 0])
-            agent1_reward.append(reward_this_episode[i, 1])
-            agent2_reward.append(reward_this_episode[i, 2])
 
-        if episode % 100 == 0 or episode == number_of_episodes-1:
-            avg_rewards = [np.mean(agent0_reward), np.mean(agent1_reward), np.mean(agent2_reward)]
-            agent0_reward = []
-            agent1_reward = []
-            agent2_reward = []
-            for a_i, avg_rew in enumerate(avg_rewards):
-                logger.add_scalar('agent%i/mean_episode_rewards' % a_i, avg_rew, episode)
 
-        #saving model
-        save_dict_list =[]
-        if save_info:
-            for i in range(3):
 
-                save_dict = {'actor_params': maddpg.maddpg_agent[i].actor.state_dict(),
-                             'actor_optim_params': maddpg.maddpg_agent[i].actor_optimizer.state_dict(),
-                             'critic_params': maddpg.maddpg_agent[i].critic.state_dict(),
-                             'critic_optim_params': maddpg.maddpg_agent[i].critic_optimizer.state_dict()}
-                save_dict_list.append(save_dict)
+# =====================================
+        # each agent has it's own critic and actor network'
+        # each actor gets its agents state
+        # but each agent critic seems to be getting the same input
+        # critic input = obs_full + actions = obs_full (which is concat 2*24 agent_states)+2+2=52
+        # Agent input variables : in_actor, hidden_in_actor, hidden_out_actor, out_actor, in_critic, hidden_in_critic, hidden_out_critic
+        # each tennis player (agent) has 4 models : actor_local, actor_target, critic_local, critic_target
 
-                torch.save(save_dict_list, 
-                           os.path.join(model_dir, 'episode-{}.pt'.format(episode)))
-                
-            # save gif files
-            imageio.mimsave(os.path.join(model_dir, 'episode-{}.gif'.format(episode)), 
-                            frames, duration=.04)
+    def update(self, samples, agent_number, logger):
+        """update the critics and actors of all the agents """
 
-    env.close()
-    logger.close()
-    timer.finish()
+        # need to transpose each element of the samples
+        # to flip obs[sample_size][agent_number] to
+        # obs[agent_number][sample_size]
+        # obs = [agent_number]([sample_size][14 state elements])
+        # obs for 3 agents and sample size 5: a list with 3 elements. each element is (5x14)
+        # osb_full = [14][sample_size] ==> later is converted into a tensor of shape (14x5)
+        # obs_full for 3 agent sample size 5: a list with 14 elements, each elements is a (1x5)
+        # action = [agent_number][sample_size][action_size]
+        # reward = [agent_number][sample_size] *reward itself is a single value you do not need any additional dimension
+        # next_obs = for 3 agents and sample size 5: a list with 3 elements. each element is (5x14)
+        # next_obs_full = same as obs_full
+        # done = [agent_number][sample_size] *done itself is a single value you do not need any additional dimension
+        # print("code environment obs", obs)
+        # print("code environment obs_full", obs_full)
+        # print("code environment next obs", next_obs)
+        # print("code environment next_obs_full", next_obs_full)
+        # print("code environment reward", reward)
+        # print("code environment done", done)
+        # this is global observations at time t
+        # there is 1 global for each sample
+        # this line converts the list into a tensor. obs_full.shape = 14x5 = [global_state x sample_size]
+        # print("code environment obs_full", obs_full.shape, obs_full)
+        # this is global observations at time t+1
+        # this line converts the list into a tensor. obs_full.shape = 14x5 = [global_state x sample_size]
+        # print("code environment next_obs_full", next_obs_full.shape, next_obs_full)
+        # extracts the particular agent model instance from the list of agent model instances
+        # we only activate the specific agent model updating
+        #critic loss = batch mean of (y- Q(s,a) from target network)^2
+        #y = reward of this timestep + discount * Q(st+1,at+1) from target network
+        # the actor only uses its own agent observation to make a decision with a for loop
+        # print("critic_action_input_shape", target_actions.shape)
+        # finally obs_full and snext_obs_full converted to [sample_size 5 x global state size 14]
+        # target_critic_input.shape = [sample size , 2 action agent1 + 2 act agent2 + 2 action agent3 + 14 global state space size]
+        # this is ready for Q(s, a) where s + a = 20 dimenional
+        # predicted reward by target model
+        # critic_input = torch.cat((obs_full.t(), action), dim=1).to(device)
+        # local critic model estimation of value action for time t using actual observed state and action
+        mse_loss = torch.nn.MSELoss()
+        # notice y.detach() will prevent y from contributing into the gradient of loss. essentially y becomes constant
+        # that prevents parameters of the y (target) model to be updated.
+        # critic_loss = huber_loss(q, y.detach())
+        #torch.nn.utils.clip_grad_norm_(agent.critic.parameters(), 0.5)
 
-if __name__=='__main__':
-    main()
+        #update actor network using policy gradient
+        # make input to agent
+        # detach the other agents to save computation
+        # saves some time for computing derivative
+        # the following is a list of actions recommended by local actor of each agent actor at time t (not t+1)
+        # only one agent parameters is activated for back propagation, the others are only used for forward pass
+        # to compute their corresponding agents action. But the actions are constants not tensors.
+        # turns a list into a tensor q_input.shape = [sample_size][3 agents x 2 actions dimension = 6 dimension]
+        # combine all the actions and observations for input to critic
+        # unlike the lecture videos the observation passed to the critic is not agents observation but one single
+        # global observation
+        # many of the obs are redundant, and obs[1] contains all useful information already
+        # turns a list into a tensor q_input.shape = [sample_size][3 agents x 2 actions dimension = 6 dimension + 14 global = 20]
+        # q_input2 = torch.cat((obs_full.t(), q_action_input), dim=1)
+        # notice we have the critic model for 1 agent. but it needs all other agents models actions. instead of using observed action
+        # from the random sample
+        # here we are using the predicted action from the actor models. we need this because we want action as a function
+        # of actor parameters so we can backpropagate and optimize it.
+        # get the policy gradient
+        # actor_optimizer only contains the actor parameters so the critic model parameters are not updated.
+        #torch.nn.utils.clip_grad_norm_(agent.actor.parameters(),0.5)
+
+            
+#============================================================================
+            
+
+
+
+
