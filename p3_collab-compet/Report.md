@@ -1,5 +1,8 @@
-
-
+# Introduction
+This was the final and most challenging project in this course. Overall, after completing the assignments i feel it is very tricky to get the DRL to converge. I see a variety of limitations
+such as the need for simulated environments to train the agents. For use-cases in which failure is 
+very expensive such as self-driving cars, we do not have the luxuary of simulations/failures. I also feel the convergence is very tricky. Even if we get the optimization to converge in one scenario, if the simulation is changed slightly, there is no garantee that the optimization will be stable. 
+I struggled quite a bit in getting the optimizations to work for this class where the action and state space was very small. I cannot imagine the algorithms will work in real world situations where we have myriad of actions and a huge and unpreditable state space. At this moment, i feel the DRL is limited to computer games. 
     
     # amplitude of OU noise
     # this slowly decreases to 0

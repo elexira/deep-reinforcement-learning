@@ -1,7 +1,7 @@
 # individual network settings for each actor + critic pair
 # see networkforall for details
 
-from networkforall import Network, Actor, Critic
+from networkforall import Actor, Critic
 from utilities import hard_update, gumbel_softmax, onehot_from_logits
 from torch.optim import Adam
 import torch
@@ -38,16 +38,24 @@ class DDPGAgent:
         hard_update(self.target_actor, self.actor)
         hard_update(self.target_critic, self.critic)
 
-        self.actor_optimizer = Adam(self.actor.parameters(), lr=lr_actor)
-        self.critic_optimizer = Adam(self.critic.parameters(), lr=lr_critic, weight_decay=1.e-5)
+        self.actor_optimizer = Adam(self.actor.parameters(), lr=lr_actor, weight_decay=0)
+        self.critic_optimizer = Adam(self.critic.parameters(), lr=lr_critic, weight_decay=0)
 
-
-    def act(self, obs, noise=0.0):
+    def act(self, obs, noise=0.0, grad_zero=False):
         obs = obs.to(device)
-        action = self.actor(obs) + noise*self.noise.noise()
+        if grad_zero:
+            self.actor.eval()
+            with torch.no_grad():
+                action = self.actor(obs) + noise*self.noise.noise()
+        else:
+            action = self.actor(obs) + noise * self.noise.noise()
+        self.actor.train()
         return action
 
     def target_act(self, obs, noise=0.0):
         obs = obs.to(device)
         action = self.target_actor(obs) + noise*self.noise.noise()
         return action
+
+    def reset(self):
+        self.noise.reset()

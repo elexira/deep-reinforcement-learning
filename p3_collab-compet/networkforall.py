@@ -4,6 +4,11 @@ import torch.nn.functional as F
 from torch import tanh
 import numpy as np
 
+def hidden_init(layer):
+    fan_in = layer.weight.data.size()[0]
+    lim = 1. / np.sqrt(fan_in)
+    return (-lim, lim)
+
 
 class Actor(nn.Module):
     def __init__(self, input_dim, hidden_in_dim, hidden_out_dim, output_dim):
@@ -17,7 +22,7 @@ class Actor(nn.Module):
         self.batch_norm_fc1 = nn.BatchNorm1d(hidden_in_dim)
         self.fc2 = nn.Linear(hidden_in_dim, hidden_out_dim)
         self.fc3 = nn.Linear(hidden_out_dim, output_dim)
-        self.nonlin = F.relu  # leaky_relu
+        self.nonlin_1 = F.relu  # leaky_relu
         self.nonlin_2 = F.elu  # leaky_relu
 
     def reset_parameters(self):
@@ -26,8 +31,8 @@ class Actor(nn.Module):
         self.fc3.weight.data.uniform_(-1e-3, 1e-3)
 
     def forward(self, x):
-        h1 = self.nonlin_2(self.fc1(x))
-        h2 = self.nonlin_2(self.fc2(h1))
+        h1 = self.nonlin_1(self.fc1(x))
+        h2 = self.nonlin_1(self.fc2(h1))
         h3 = tanh(self.fc3(h2))
         return h3
 
@@ -59,7 +64,8 @@ class Critic(nn.Module):
 
     def forward(self, state, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        xs = F.relu(self.batch_norm_fcs1(self.fcs1(state)))
+        # xs = F.elu(self.batch_norm_fcs1(self.fcs1(state)))
+        xs = F.relu(self.fcs1(state))
         x = torch.cat((xs, action), dim=1)
         x = F.relu(self.fc2(x))
         return self.fc3(x)
