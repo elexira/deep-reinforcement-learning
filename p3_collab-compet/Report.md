@@ -11,23 +11,21 @@ I struggled quite a bit in getting the optimizations to work for this class wher
 to setup the environment refer to the instructions for setting up unity environment in project 2.
 
 ## Disclaimer
-My code started from the MADDPG lecture code. Spent 1-2 weeks tweaking this to achieve the project goal. After failing to achieve this with MADDPG, i reviewed a lot of materials from the class Forum. 
-Many of the later tweaks were inspired by students who faced similar problems. At one point i almost gave up. I also post my own question in the forum as follows:
+My code started from the MADDPG lecture code. Spent 1-2 weeks tweaking this to achieve the project goal. I never found any bugs in my code. I reviewed it line by line several times. After failing to achieve the goal with MADDPG, i reviewed a lot of materials from the class Forums.  
 
-At this point i have explored most of the comments on this forum and have gone through my code a couple of times line by line, but still my actor does not learn. This is after 2 weeks of work, so would appreciate something more than "tune your hyper-parameters", i have at this point tried a variety of the trivial hints. Actor sends the agent to corners/center of the table. The actor actions quickly saturates to around [+/-1, +/-1]
+Many of the later tweaks were inspired by students who faced similar problems. In particular this two git repos posted by students helped me with some fine-tuning, which i have elaborated later 
 
-    1. noise magnitude tunning
-    2. trying different loss functions such as mse and torch.nn.SmoothL1Loss()
-    3. changing the model sizes
-    4. changing batch sizes, number of episodes, buffer sizes
-    5. training multiple times within one training and training once every n episodes
-    6. gradient clipping 
+https://github.com/gtg162y/DRLND/blob/master/P3_Collab_Compete/Tennis_Udacity_Workspace.ipynb
+https://github.com/hoseasiu/DeepRLNanodegree/blob/master/MultiAgentProject
+
+I also post my own questions in the forum as follows:
+    https://knowledge.udacity.com/questions/409368
+    https://knowledge.udacity.com/questions/399454
     
-The class mentors did not really provide much help. 
 
 ## Environment Details
 Action is a 2 dimensional vector. The first element control the left and right movement and its speed. 
-action of -1 pull the agent to the edge of the table, action of +1 move the agent to the center. Values in between perform the same at a lower speed. Action of 0 does not move the agent. The second element of action control the jump. Any value below 0.5 will result in no motion in the agent. Action values above 0.5 will result in agent jumping up. So in fact this is simply a discrete action with value 0 and 1. Nonetheless we model it as a continuous action between -1 and 1. 
+action of -1 pulls the agent to the edge of the table, action +1 moves the agent to the center. Values in between perform the same at a lower speed. Action of 0 does not move the agent. The second element of action control the jump. Any value below 0.5 will result in no motion in the agent. Action values above 0.5 will result in agent jumping up. So in fact this is simply a discrete action with value 0 and 1. Nonetheless we model it as a continuous action between -1 and 1. 
 
 The instruction says. In this environment, two agents control rackets to bounce a ball over a net. If an agent hits the ball over the net, it receives a reward of +0.1. If an agent lets a ball hit the ground or hits the ball out of bounds, it receives a reward of -0.01. Thus, the goal of each agent is to keep the ball in play. Upon ball reaching the boundary of simulation a negative reward is assigned and episodes comes to a sudden end. 
 
@@ -59,16 +57,16 @@ two buffer size of 100,000 and 1,000,000 was tried without much significant diff
 ### Noise dynamic
 this was an area i spent a lot of time on
 #### Default OUNoise
-This noise did not give me good results. I tried variety of rates to decay the rate. I typically decay the noise with each step within an episode which i thin is too fast with factors around 0.99995
+This noise did not give me good results. I tried variety of rates to decay the noise. I typically decay the noise with each step within an episode which was too fast with factors around 0.99995
 #### Random Normal Distribution 
 This noise also by itself did not help.
 #### Random Normal Distribution with Controlled Decay
 After Trying a lot of different decays within an episode, inspired by hints from other class students in forum, i started a more intelligent decay in which i do not decay the noise during the initial non-training period. Then i keep the noise decay fixed within one episode. Only decay happens when we go the the next episode. This allows smaller decay factor of 0.999.
 
 ### Training Frequency
-This made a big difference in performance. Initially i followed the MADDPG process and updated the models after the end of each episode, but later on i brought the training inside the episode steps. In fact, I train 3 times for each step of training. That means if on average an episode takes 10 steps, and i run 1000 episodes, the total number of trainins is 10x1000x3 = 30,000. This definitely improved the performance. The problem is that as agents get better the lenght of episodes gets longer and there will be far more training. 
+This made a big difference in performance. Initially i followed the MADDPG process and updated the models after the end of each episode, but later on i brought the training inside the episode steps. In fact, I train 3 times for each step of training. That means if on average an episode takes 10 steps, and i run 1000 episodes, the total number of training is 10x1000x3 = 30,000. This definitely improved the performance. The problem is that as agents get better the length of episodes gets longer and there will be far more training. 
 
-As shown the performance during episode 1250-1300 became so good that the episodes will run for the maximum lenght of around 1000 seconds. There was no point in waiting longer so i stopped the training after the agent scored an average of 0.7 points. 
+As shown the performance during episode 1250-1300 became so good that the episodes will run for the maximum length of around 1000 seconds. There was no point in waiting longer so i stopped the training after the agent scored an average of 0.7 points. 
 
 ![actor_critic](./images/score.png)
 ![actor_critic](./images/log.png)
@@ -79,9 +77,9 @@ The gif shows the performance of the agents during a game play.
 notice that noise should be only added during interaction with the simulator. Some noise is added to the actor recommended action and passed to the simulator to collect more data at random states. However during training when actor is called, DO NOT add any noise to the data. This is a deadly mistake misleading the critic and actor. 
 
 ### Model Parameters 
-I tried a few model architecture with different sizes and lenght with and without batch normalization, with elu and relu activation. My gut feeling is that the model size did not really play an important role. The model configuration was also based on models from 2 students in the class. My own original model was relatively smaller with fewer parameters. I did not spend much time tuning the model size. 
+I tried a few model architecture with different sizes and length with and without batch normalization, with elu and relu activation. My gut feeling is that the model size did not really play an important role. The model configuration was also based on models from 2 students in the class. My own original model was relatively smaller with fewer parameters. I did not spend much time tuning the model size. 
 
-the default model in MADDPG combined the state and action and passed them into the critic. The Critic is a Q(S, s) function. However, DDPG class separated the two. I used the DDPG seperated state and action based on a recommendation from one of the students in the class. 
+the default model in MADDPG combined the state and action and passed them into the critic. The Critic is a Q(S, s) function. However, DDPG class separated the two. I used the DDPG separated state and action based on a recommendation from one of the students in the class. 
 
 
 ## Future Ideas
