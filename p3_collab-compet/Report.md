@@ -66,7 +66,7 @@ After Trying a lot of different decays within an episode, inspired by hints from
 ### Training Frequency
 This made a big difference in performance. Initially i followed the MADDPG process and updated the models after the end of each episode, but later on i brought the training inside the episode steps. In fact, I train 3 times for each step of training. That means if on average an episode takes 10 steps, and i run 1000 episodes, the total number of training is 10x1000x3 = 30,000. This definitely improved the performance. The problem is that as agents get better the length of episodes gets longer and there will be far more training. 
 
-As shown the performance during episode 1250-1300 became so good that the episodes will run for the maximum length of around 1000 seconds. There was no point in waiting longer so i stopped the training after the agent scored an average of 0.7 points. 
+As shown the performance during episode 750 became so good that the episodes will run for the maximum length of around 1000 seconds. There was no point in waiting longer so i stopped the training after the agent scored an average of 0.7 points. 
 
 ![actor_critic](./images/score.png)
 ![actor_critic](./images/log.png)
