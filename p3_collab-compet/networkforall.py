@@ -24,6 +24,7 @@ class Actor(nn.Module):
         self.fc3 = nn.Linear(hidden_out_dim, output_dim)
         self.nonlin_1 = F.relu  # leaky_relu
         self.nonlin_2 = F.elu  # leaky_relu
+        self.reset_parameters()
 
     def reset_parameters(self):
         self.fc1.weight.data.uniform_(*hidden_init(self.fc1))

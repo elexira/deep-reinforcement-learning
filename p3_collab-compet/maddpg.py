@@ -5,13 +5,13 @@
 from ddpg import DDPGAgent
 import torch
 from utilities import soft_update, transpose_to_tensor, transpose_list
-#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = 'cpu'
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = 'cpu'
 
 
 
 class MADDPG:
-    def __init__(self, number_of_agents, action_size, discount_factor=0.99, tau=0.001):
+    def __init__(self, number_of_agents, action_size, discount_factor=0.95, tau=0.05):
         super(MADDPG, self).__init__()
         # critic input = obs_full + actions = obs_full (which is concat 2*24 agent_states)+2+2=52
         self.number_of_agents = number_of_agents
@@ -39,9 +39,17 @@ class MADDPG:
         target_actors = [ddpg_agent.target_actor for ddpg_agent in self.maddpg_agent]
         return target_actors
 
-    def act(self, obs_all_agents, noise=0.0):
+    def act(self, obs_all_agents, episode, number_of_episode_before_training, noise_reduction_factor, noise=0.0):
         """get actions from all agents in the MADDPG object"""
-        actions = [agent.act(obs, noise, grad_zero=True) for agent, obs in zip(self.maddpg_agent, obs_all_agents)]
+        actions = [agent.act(obs,
+                             episode,
+                             number_of_episode_before_training,
+                             noise_reduction_factor,
+                             noise,
+                             grad_zero=True,
+                             ) for agent, obs in zip(self.maddpg_agent, obs_all_agents)]
+        # if episode % 50 == 0:
+        #     print("noise scale", self.maddpg_agent[0].noise_reduction)
         return actions
 
     def target_act(self, obs_all_agents, noise=0.0):
@@ -52,15 +60,9 @@ class MADDPG:
     def update(self, samples, agent_number):
         """update the critics and actors of all the agents """
         obs, obs_full, action, reward, next_obs, next_obs_full, done = map(transpose_to_tensor, samples)
-        # print(type(obs), type(obs_full), type(action), type(reward), type(next_obs), type(next_obs_full), type(done))
-        # print(len(obs), len(obs_full), len(action), len(reward), len(next_obs), len(next_obs_full), len(done))
-        # print(obs[0].shape, obs_full[0].shape, action[0].shape, reward[0].shape, next_obs[0].shape, next_obs_full[0].shape, done[0].shape)
-        # print("secondary action", action)
-
         obs_full = torch.stack(obs_full)
         next_obs_full = torch.stack(next_obs_full)
         agent = self.maddpg_agent[agent_number]
-        agent.critic_optimizer.zero_grad()
         target_actions = self.target_act(next_obs)
         target_actions = torch.cat(target_actions, dim=1).to(device)
         # print("target_actions", target_actions.shape)
@@ -76,17 +78,17 @@ class MADDPG:
         obs_full_t = obs_full.t().to(device)
         q = agent.critic(obs_full_t, action)
         # print("obs_full_t", obs_full_t.shape)
-
         huber_loss = torch.nn.SmoothL1Loss()
         # mse_loss = torch.nn.MSELoss()
         critic_loss = huber_loss(q, y.detach())
         # critic_loss = mse_loss(q, y.detach())
+        agent.critic_optimizer.zero_grad()
         critic_loss.backward()
-        torch.nn.utils.clip_grad_norm_(agent.critic.parameters(), 1.0)
+        # torch.nn.utils.clip_grad_norm_(agent.critic.parameters(), 1.0)
         agent.critic_optimizer.step()
 
         #update actor network using policy gradient
-        agent.actor_optimizer.zero_grad()
+
         # q_action_input = [self.maddpg_agent[i].actor(ob) if i == agent_number\
         #            else self.maddpg_agent[i].actor(ob).detach()
         #            for i, ob in enumerate(obs)]
@@ -100,8 +102,9 @@ class MADDPG:
 
         # q_action_input = torch.cat(q_action_input, dim=1)
         actor_loss = -agent.critic(obs_full.t(), action_clone).mean()
+        agent.actor_optimizer.zero_grad()
         actor_loss.backward()
-        torch.nn.utils.clip_grad_norm_(agent.actor.parameters(), 1.0)
+        # torch.nn.utils.clip_grad_norm_(agent.actor.parameters(), 1.0)
         agent.actor_optimizer.step()
 
 
@@ -118,5 +121,17 @@ class MADDPG:
             agent.reset()
 
 
+    def save_maddpg(self):
+        # this piece was borrowed from one of the class students https://github.com/gtg162y/DRLND/blob/master/P3_Collab_Compete/Tennis_Udacity_Workspace.ipynb
+        # the link was available the Udacity forums
+        for agent_id, agent in enumerate(self.maddpg_agent):
+            torch.save(agent.actor.state_dict(), 'checkpoint_actor_' + str(agent_id) + '.pth')
+            torch.save(agent.critic.state_dict(), 'checkpoint_critic_' + str(agent_id) + '.pth')
 
-
+    def load_maddpg(self):
+        # this piece was borrowed from one of the class students https://github.com/gtg162y/DRLND/blob/master/P3_Collab_Compete/Tennis_Udacity_Workspace.ipynb
+        # the link was available in the Udacity forums
+        for agent_id, agent in enumerate(self.maddpg_agent):
+            #Since the model is trained on gpu, need to load all gpu tensors to cpu:
+            agent.actor.load_state_dict(torch.load('checkpoint_actor_' + str(agent_id) + '.pth', map_location=lambda storage, loc: storage))
+            agent.critic.load_state_dict(torch.load('checkpoint_critic_' + str(agent_id) + '.pth', map_location=lambda storage, loc: storage))
