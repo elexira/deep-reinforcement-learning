@@ -5,8 +5,8 @@
 from ddpg import DDPGAgent
 import torch
 from utilities import soft_update, transpose_to_tensor, transpose_list
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = 'cpu'
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = 'cpu'
 
 
 
@@ -48,8 +48,6 @@ class MADDPG:
                              noise,
                              grad_zero=True,
                              ) for agent, obs in zip(self.maddpg_agent, obs_all_agents)]
-        # if episode % 50 == 0:
-        #     print("noise scale", self.maddpg_agent[0].noise_reduction)
         return actions
 
     def target_act(self, obs_all_agents, noise=0.0):
@@ -65,30 +63,24 @@ class MADDPG:
         agent = self.maddpg_agent[agent_number]
         target_actions = self.target_act(next_obs)
         target_actions = torch.cat(target_actions, dim=1).to(device)
-        # print("target_actions", target_actions.shape)
         next_obs_full_t = next_obs_full.t().to(device)
-        # print("next_obs_full_t", next_obs_full_t.shape)
         with torch.no_grad():
             # we do not want to update the target model that is the reason behind no grad here
             q_next = agent.target_critic(next_obs_full_t, target_actions)
         y = reward[agent_number].view(-1, 1) + self.discount_factor * q_next * (1 - done[agent_number].view(-1, 1))
-        # print("y", y)
         action = torch.cat(action, dim=1).to(device)
-        # print("concat action", action)
         obs_full_t = obs_full.t().to(device)
         q = agent.critic(obs_full_t, action)
-        # print("obs_full_t", obs_full_t.shape)
         huber_loss = torch.nn.SmoothL1Loss()
-        # mse_loss = torch.nn.MSELoss()
         critic_loss = huber_loss(q, y.detach())
+        # mse_loss = torch.nn.MSELoss()
         # critic_loss = mse_loss(q, y.detach())
         agent.critic_optimizer.zero_grad()
         critic_loss.backward()
         # torch.nn.utils.clip_grad_norm_(agent.critic.parameters(), 1.0)
         agent.critic_optimizer.step()
 
-        #update actor network using policy gradient
-
+        #update actor network using policy gradient original MADDPG
         # q_action_input = [self.maddpg_agent[i].actor(ob) if i == agent_number\
         #            else self.maddpg_agent[i].actor(ob).detach()
         #            for i, ob in enumerate(obs)]
